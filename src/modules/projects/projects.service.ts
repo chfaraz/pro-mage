@@ -100,7 +100,8 @@ export class ProjectsService {
     return res;
   }
 
-  @Cron('*/1 * * * *')
+  // This cron job will run every day at 7 AM
+  @Cron('0 7 * * *')
   async projectEnd() {
     const currentDate = new Date();
 
@@ -110,7 +111,6 @@ export class ProjectsService {
       .andWhere('project.completed = :completed', { completed: false })
       .leftJoinAndSelect('project.tasks', 'tasks')
       .getMany();
-      console.log(projects);
       
     projects.forEach((project) => {
       this.projectRepository.update({ id: project.id }, { completed: true });
