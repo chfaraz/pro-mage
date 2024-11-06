@@ -1,5 +1,5 @@
 import { Project } from "src/modules/projects/entities/project.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('project_manager')
 export class ProjectManager {
@@ -8,12 +8,8 @@ export class ProjectManager {
   
     @Column()
     name: string;
-
-    @Column()
-    projectId: number;
   
-    @ManyToOne(() => Project, (project) => project.projectManagers)
-    @JoinColumn({ name: 'projectId' })
+    @OneToOne(() => Project, (project) => project.projectManager)
     project: Project;
 
     @CreateDateColumn({ nullable: true, type: 'timestamptz' })

@@ -4,6 +4,7 @@ import { UpdateProjectManagerDto } from './dto/update-project-manager.dto';
 import { ProjectManager } from './entities/project-manager.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PaginationDto } from 'src/config/pagination.dto';
 
 @Injectable()
 export class ProjectManagersService {
@@ -12,23 +13,34 @@ export class ProjectManagersService {
     private projectMangerRepository: Repository<ProjectManager>,
   ) {}
 
-  create(createProjectManagerDto: CreateProjectManagerDto) {
-    return 'This action adds a new projectManager';
+  async create(createProjectDto: CreateProjectManagerDto) {
+    return await this.projectMangerRepository.save(createProjectDto);
   }
 
-  findAll() {
-    return `This action returns all projectManagers`;
+  async findAll(paginationDto: PaginationDto) {
+    const qb = this.projectMangerRepository
+      .createQueryBuilder('pm');
+
+    qb.limit(paginationDto.limit).offset(
+      (paginationDto.page - 1) * paginationDto.limit,
+    );
+    qb.orderBy(`pm.${paginationDto.orderBy}`, paginationDto.order);
+    const res = await qb.getManyAndCount();
+    return { data: res[0], count: res[1] };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} projectManager`;
+  async findOne(id: number) {
+    return await this.projectMangerRepository.findOne({
+      where: { id },
+      relations: { project: true },
+    });
   }
 
-  update(id: number, updateProjectManagerDto: UpdateProjectManagerDto) {
-    return `This action updates a #${id} projectManager`;
+  async update(id: number, updateProjectDto: UpdateProjectManagerDto) {
+    return await this.projectMangerRepository.update({ id }, updateProjectDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} projectManager`;
+  async remove(id: number) {
+    return await this.projectMangerRepository.delete({ id });
   }
 }

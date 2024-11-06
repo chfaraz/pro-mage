@@ -4,8 +4,4 @@ export class CreateProjectManagerDto {
   @IsString()
   @IsNotEmpty()
   name: string;
-
-  @IsNumber()
-  @IsOptional()
-  projectId?: number;
 }

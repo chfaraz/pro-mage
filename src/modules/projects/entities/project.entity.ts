@@ -1,6 +1,6 @@
 import { ProjectManager } from "src/modules/project-managers/entities/project-manager.entity";
 import { Task } from "src/modules/tasks/entities/task.entity";
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('project')
 export class Project {
@@ -13,9 +13,6 @@ export class Project {
     @Column('text')
     details: string;
 
-    @Column()
-    manager: string; //enum or read it from db or json
-
     @Column({ type: 'date', nullable: true })
     startDate: Date;
   
@@ -26,8 +23,12 @@ export class Project {
     @OneToMany(() => Task, (task) => task.project)
     tasks: Task[];
 
-    @OneToMany(() => ProjectManager, (pm) => pm.project)
-    projectManagers: ProjectManager[];
+    @Column({nullable:true})
+    projectManagerId: number;
+
+    @OneToOne(() => ProjectManager, (pm) => pm.project)
+    @JoinColumn({ name: 'projectManagerId' })
+    projectManager: ProjectManager;
 
     @CreateDateColumn({ nullable: true, type: 'timestamptz' })
     createdAt: Date;
