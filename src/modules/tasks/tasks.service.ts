@@ -23,9 +23,9 @@ export class TasksService {
     return task;
   }
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(updateProjectDto: UpdateTaskDto, paginationDto: PaginationDto) {
     const qb = this.taskRepository.createQueryBuilder('t');
-
+    qb.where(updateProjectDto)
     qb.limit(paginationDto.limit).offset(
       (paginationDto.page - 1) * paginationDto.limit,
     );
@@ -60,9 +60,10 @@ export class TasksService {
   async remove(id: number) {
     const res = await this.taskRepository.delete({ id });
     if (res.affected === 1) {
+      const find = await this.findOne(id);
       this.eventEmitter.emit('event', {
         event: 'task.deleted',
-        data: `task with id ${id} is deleted`,
+        data: `task with id ${id} is deleted from project with id ${find.projectId}`,
       });
     }
     return res;

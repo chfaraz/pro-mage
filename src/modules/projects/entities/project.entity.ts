@@ -1,39 +1,50 @@
-import { ProjectManager } from "src/modules/project-managers/entities/project-manager.entity";
-import { Task } from "src/modules/tasks/entities/task.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { ProjectManager } from 'src/modules/project-managers/entities/project-manager.entity';
+import { Task } from 'src/modules/tasks/entities/task.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('project')
 export class Project {
-    @PrimaryGeneratedColumn()
-    id: number;
-  
-    @Column()
-    name: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column('text')
-    details: string;
+  @Column()
+  name: string;
 
-    @Column({ type: 'date', nullable: true })
-    startDate: Date;
-  
-    @Column({ type: 'date', nullable: true })
-    endDate: Date;
+  @Column('text')
+  details: string;
 
-    //link between project and task
-    @OneToMany(() => Task, (task) => task.project)
-    tasks: Task[];
+  @Column({ type: 'date', nullable: true })
+  startDate: Date;
 
-    @Column({nullable:true})
-    projectManagerId: number;
+  @Column({ type: 'date', nullable: true })
+  endDate: Date;
 
-    @OneToOne(() => ProjectManager, (pm) => pm.project)
-    @JoinColumn({ name: 'projectManagerId' })
-    projectManager: ProjectManager;
+  @Column({ default: false })
+  completed: boolean;
 
-    @CreateDateColumn({ nullable: true, type: 'timestamptz' })
-    createdAt: Date;
-  
-    @UpdateDateColumn({ nullable: true, type: 'timestamptz' })
-    updatedAt: Date;
+  //link between project and task
+  @OneToMany(() => Task, (task) => task.project)
+  tasks: Task[];
 
+  @Column({ nullable: true })
+  projectManagerId: number;
+
+  @OneToOne(() => ProjectManager, (pm) => pm.project)
+  @JoinColumn({ name: 'projectManagerId' })
+  projectManager: ProjectManager;
+
+  @CreateDateColumn({ nullable: true, type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ nullable: true, type: 'timestamptz' })
+  updatedAt: Date;
 }

@@ -9,10 +9,12 @@ import { ProjectManagersModule } from './modules/project-managers/project-manage
 import { ConfigModule } from '@nestjs/config';
 import typeorm, { connectionSource } from './config/database';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot(connectionSource.options),
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot({

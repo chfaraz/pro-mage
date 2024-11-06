@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { PaginationDto } from 'src/config/pagination.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class ProjectsService {
@@ -17,23 +18,24 @@ export class ProjectsService {
   ) {}
 
   async create(createProjectDto: CreateProjectDto) {
-    const project = await this.projectRepository.save(createProjectDto);
     //check if PM is already assigned a project
-    const {projectManagerId}=createProjectDto;
+    const { projectManagerId } = createProjectDto;
     if (projectManagerId) {
       const exist = await this.projectRepository.findOne({
         where: { projectManagerId: projectManagerId },
       });
+
       if (exist)
         throw new BadRequestException(
           'this project manager is already assigned to a project',
         );
     }
+    const project = await this.projectRepository.save(createProjectDto);
     this.eventEmitter.emit('event', {
       event: 'project.created',
       data: project,
     });
-    if(projectManagerId){
+    if (projectManagerId) {
       this.eventEmitter.emit('event', {
         event: 'project.projectManagerAssigned',
         data: `project manager with id ${projectManagerId} assigned to project with id ${project.id}`,
@@ -63,7 +65,7 @@ export class ProjectsService {
   }
 
   async update(id: number, updateProjectDto: UpdateProjectDto) {
-    const {projectManagerId} = updateProjectDto;
+    const { projectManagerId } = updateProjectDto;
     if (projectManagerId) {
       const exist = await this.projectRepository.findOne({
         where: { projectManagerId: projectManagerId },
@@ -78,12 +80,12 @@ export class ProjectsService {
       event: 'project.updated',
       data: `project with id ${id} is updated`,
     });
-if(projectManagerId){
-  this.eventEmitter.emit('event', {
-    event: 'project.projectManagerAssigned',
-    data: `project manager with id ${projectManagerId} assigned to project with id ${id} `,
-  });
-}
+    if (projectManagerId) {
+      this.eventEmitter.emit('event', {
+        event: 'project.projectManagerAssigned',
+        data: `project manager with id ${projectManagerId} assigned to project with id ${id} `,
+      });
+    }
     return res;
   }
 
@@ -96,5 +98,30 @@ if(projectManagerId){
       });
     }
     return res;
+  }
+
+  @Cron('*/1 * * * *')
+  async projectEnd() {
+    const currentDate = new Date();
+
+    const projects = await this.projectRepository
+      .createQueryBuilder('project')
+      .where('project.endDate < :currentDate', { currentDate })
+      .andWhere('project.completed = :completed', { completed: false })
+      .leftJoinAndSelect('project.tasks', 'tasks')
+      .getMany();
+    projects.forEach((project) => {
+      this.projectRepository.update({ id: project.id }, { completed: true });
+      let detail = project;
+      delete detail.tasks,
+        this.eventEmitter.emit('event', {
+          event: 'project.end',
+          data: detail,
+        });
+      this.eventEmitter.emit('event', {
+        event: 'project.endSummary',
+        data: project,
+      });
+    });
   }
 }

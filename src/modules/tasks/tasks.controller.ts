@@ -14,8 +14,8 @@ export class TasksController {
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.tasksService.findAll(paginationDto);
+  findAll(@Query() updateProjectDto: UpdateTaskDto, @Query() paginationDto: PaginationDto) {
+    return this.tasksService.findAll(updateProjectDto, paginationDto);
   }
 
   @Get(':id')
