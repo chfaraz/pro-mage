@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,17 +6,40 @@ import { Project } from './entities/project.entity';
 import { Repository } from 'typeorm';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { PaginationDto } from 'src/config/pagination.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
-    private subscriptionsService: SubscriptionsService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createProjectDto: CreateProjectDto) {
-    return await this.projectRepository.save(createProjectDto);
+    const project = await this.projectRepository.save(createProjectDto);
+    //check if PM is already assigned a project
+    const {projectManagerId}=createProjectDto;
+    if (projectManagerId) {
+      const exist = await this.projectRepository.findOne({
+        where: { projectManagerId: projectManagerId },
+      });
+      if (exist)
+        throw new BadRequestException(
+          'this project manager is already assigned to a project',
+        );
+    }
+    this.eventEmitter.emit('event', {
+      event: 'project.created',
+      data: project,
+    });
+    if(projectManagerId){
+      this.eventEmitter.emit('event', {
+        event: 'project.projectManagerAssigned',
+        data: `project manager with id ${projectManagerId} assigned to project with id ${project.id}`,
+      });
+    }
+    return project;
   }
 
   async findAll(paginationDto: PaginationDto) {
@@ -40,10 +63,38 @@ export class ProjectsService {
   }
 
   async update(id: number, updateProjectDto: UpdateProjectDto) {
-    return await this.projectRepository.update({ id }, updateProjectDto);
+    const {projectManagerId} = updateProjectDto;
+    if (projectManagerId) {
+      const exist = await this.projectRepository.findOne({
+        where: { projectManagerId: projectManagerId },
+      });
+      if (exist)
+        throw new BadRequestException(
+          'this project manager is already assigned to a project',
+        );
+    }
+    const res = await this.projectRepository.update({ id }, updateProjectDto);
+    this.eventEmitter.emit('event', {
+      event: 'project.updated',
+      data: `project with id ${id} is updated`,
+    });
+if(projectManagerId){
+  this.eventEmitter.emit('event', {
+    event: 'project.projectManagerAssigned',
+    data: `project manager with id ${projectManagerId} assigned to project with id ${id} `,
+  });
+}
+    return res;
   }
 
   async remove(id: number) {
-    return await this.projectRepository.delete({ id });
+    const res = await this.projectRepository.delete({ id });
+    if (res.affected === 1) {
+      this.eventEmitter.emit('event', {
+        event: 'project.deleted',
+        data: `project with id ${id} is deleted`,
+      });
+    }
+    return res;
   }
 }

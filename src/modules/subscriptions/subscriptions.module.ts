@@ -8,6 +8,5 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   imports: [TypeOrmModule.forFeature([Subscription])],
   controllers: [SubscriptionsController],
   providers: [SubscriptionsService],
-  exports: [SubscriptionsService],
 })
 export class SubscriptionsModule {}

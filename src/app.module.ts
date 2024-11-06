@@ -8,11 +8,13 @@ import { SubscriptionsModule } from './modules/subscriptions/subscriptions.modul
 import { ProjectManagersModule } from './modules/project-managers/project-managers.module';
 import { ConfigModule } from '@nestjs/config';
 import typeorm, { connectionSource } from './config/database';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(connectionSource.options),
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [typeorm],

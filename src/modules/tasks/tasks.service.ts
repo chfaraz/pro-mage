@@ -6,22 +6,25 @@ import { Task } from './entities/task.entity';
 import { Repository } from 'typeorm';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { PaginationDto } from 'src/config/pagination.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Status } from 'src/config/status.enum';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
-    private subscriptionsService: SubscriptionsService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createProjectDto: CreateTaskDto) {
-    return await this.taskRepository.save(createProjectDto);
+    const task = await this.taskRepository.save(createProjectDto);
+    this.eventEmitter.emit('event', { event: 'task.created', data: task });
+    return task;
   }
 
   async findAll(paginationDto: PaginationDto) {
-    const qb = this.taskRepository
-      .createQueryBuilder('t');
+    const qb = this.taskRepository.createQueryBuilder('t');
 
     qb.limit(paginationDto.limit).offset(
       (paginationDto.page - 1) * paginationDto.limit,
@@ -39,10 +42,29 @@ export class TasksService {
   }
 
   async update(id: number, updateProjectDto: UpdateTaskDto) {
-    return await this.taskRepository.update({ id }, updateProjectDto);
+    const res = await this.taskRepository.update({ id }, updateProjectDto);
+    this.eventEmitter.emit('event', {
+      event: 'task.updated',
+      data: `task with id ${id} is updated`,
+    });
+    const { status } = updateProjectDto;
+    if (status) {
+      this.eventEmitter.emit('event', {
+        event: `task.${status}`,
+        data: `status of task with id ${id} is changed to ${status}`,
+      });
+    }
+    return res;
   }
 
   async remove(id: number) {
-    return await this.taskRepository.delete({ id });
+    const res = await this.taskRepository.delete({ id });
+    if (res.affected === 1) {
+      this.eventEmitter.emit('event', {
+        event: 'task.deleted',
+        data: `task with id ${id} is deleted`,
+      });
+    }
+    return res;
   }
 }
