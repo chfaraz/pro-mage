@@ -1,38 +1,40 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# NestJS Application Setup with PostgreSQL
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This repository contains a **NestJS** application that is configured to work with **PostgreSQL** as the database. Follow the instructions below to get started.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Prerequisites
 
-## Description
+Before running the application, make sure you have the following installed on your local machine:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+1. **Node.js** 
+2. **npm** or **yarn** 
+3. **PostgreSQL** 
+4. **Postman** 
 
-## Installation
+### Install Node.js & npm
+
+To install Node.js, visit the official [Node.js website](https://nodejs.org/).
+
+## Steps to Start the Application
+
+### 1. Clone the Repository
+
+Clone this repository to your local machine:
+
+```bash
+git clone https://github.com/your-username/nestjs-postgres-app.git
+cd nestjs-postgres-app
+```
+
+mention port and database connection in .env file
+
+### Installation
 
 ```bash
 $ npm install
 ```
 
-## Running the app
+### Running the app
 
 ```bash
 # development
@@ -45,29 +47,33 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
 
-```bash
-# unit tests
-$ npm run test
+# The architecture adopted to solve the challenges:
 
-# e2e tests
-$ npm run test:e2e
+In order to address the core challenges of this application—scalability, reliability, and simplicity—I adopted a NestJS backend, PostgreSQL as the database, and an event-driven architecture using webhooks. Each of these technologies was selected for its specific strengths in solving the unique requirements of this project.
 
-# test coverage
-$ npm run test:cov
-```
+### Nestjs
 
-## Support
+NestJS was chosen as the backend framework due to its powerful and flexible architecture. It is built with TypeScript, offering a highly maintainable and scalable development environment. 
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Postgres
 
-## Stay in touch
+PostgreSQL was selected as the relational database management system (RDBMS) for its robust features and excellent support for complex queries, transactions, and data integrity.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Webhooks
 
-## License
+The decision to implement an event-driven architecture (EDA) using webhooks was made to address the need for loose coupling between services, real-time updates, and scalability.
 
-Nest is [MIT licensed](LICENSE).
+Webhooks are simple, lightweight HTTP callbacks that allow one system to notify another system about events or updates in real-time.
+
+# Any other decisions on tradeoffs I decided to make while solving the project:
+
+While considering the architecture for this app, I initially thought about using Kafka or Socket.IO for real-time communication. However, both options would have introduced unnecessary complexity:
+
+### Kafka
+Kafka is powerful for handling high-throughput, distributed systems, but it felt like overkill for a small-scale app, as it would add significant infrastructure overhead.
+
+### Socket.IO 
+Sockets offers real-time communication but would require managing persistent connections, which seemed excessive for this application.
+
+Ultimately, I chose webhooks because they provide a simple, efficient solution for event-driven communication. Webhooks are lightweight, easy to implement, and perfect for sending asynchronous notifications without the complexity of maintaining open connections or managing a message broker.
