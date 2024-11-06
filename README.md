@@ -47,6 +47,7 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+### you may view the swagger docs at localhost:3000/docs
 
 # The architecture adopted to solve the challenges:
 
@@ -77,3 +78,38 @@ Kafka is powerful for handling high-throughput, distributed systems, but it felt
 Sockets offers real-time communication but would require managing persistent connections, which seemed excessive for this application.
 
 Ultimately, I chose webhooks because they provide a simple, efficient solution for event-driven communication. Webhooks are lightweight, easy to implement, and perfect for sending asynchronous notifications without the complexity of maintaining open connections or managing a message broker.
+
+
+
+
+# Event-driven Architecture
+
+This application supports event-driven communication, allowing third-party applications to subscribe to specific events and respond to changes happening in the system. The following events are exposed for external services to listen to, enabling them to take action based on updates in the system.
+
+
+## Project Events
+- **`project.created`**: Triggered when a project is created.
+- **`project.updated`**: Triggered when a project is updated.
+- **`project.deleted`**: Triggered when a project is deleted.
+- **`project.projectManagerAssigned`**: Triggered when a project manager is assigned to a project.
+- **`project.end`**: Triggered when a project ends.
+- **`project.endSummary`**: Triggered when a project's end summary is generated.
+
+## Task Events
+- **`task.created`**: Triggered when a task is created.
+- **`task.updated`**: Triggered when a task is updated.
+- **`task.deleted`**: Triggered when a task is deleted.
+- **`task.completed`**: Triggered when a task is completed.
+- **`task.rejected`**: Triggered when a task is rejected.
+- **`task.started`**: Triggered when a task is started.
+- **`task.not started`**: Triggered when a task is not started.
+
+## How to Subscribe
+To subscribe to any of the events listed above, you can make a **POST request** to the `api_url/subscriptions` endpoint with the following request body:
+
+### Request Body:
+```json
+{
+  "callbackUrl": "https://your-application-url.com/callback",  // The URL that will receive the event notifications
+  "event": "event_name"  // The event you want to subscribe to (e.g., 'project.created', 'task.updated')
+}

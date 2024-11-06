@@ -3,7 +3,9 @@ import { ProjectManagersService } from './project-managers.service';
 import { CreateProjectManagerDto } from './dto/create-project-manager.dto';
 import { UpdateProjectManagerDto } from './dto/update-project-manager.dto';
 import { PaginationDto } from 'src/config/pagination.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('project-managers')
 @Controller('project-managers')
 export class ProjectManagersController {
   constructor(private readonly projectManagersService: ProjectManagersService) {}

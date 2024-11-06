@@ -47,7 +47,7 @@ export class ProjectsService {
   async findAll(paginationDto: PaginationDto) {
     const qb = this.projectRepository
       .createQueryBuilder('p')
-      .leftJoin('p.projectManager', 'pm');
+      .leftJoinAndSelect('p.projectManager', 'pm');
 
     qb.limit(paginationDto.limit).offset(
       (paginationDto.page - 1) * paginationDto.limit,
@@ -110,6 +110,8 @@ export class ProjectsService {
       .andWhere('project.completed = :completed', { completed: false })
       .leftJoinAndSelect('project.tasks', 'tasks')
       .getMany();
+      console.log(projects);
+      
     projects.forEach((project) => {
       this.projectRepository.update({ id: project.id }, { completed: true });
       let detail = project;

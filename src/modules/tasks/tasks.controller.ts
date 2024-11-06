@@ -3,7 +3,9 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PaginationDto } from 'src/config/pagination.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
@@ -14,8 +16,8 @@ export class TasksController {
   }
 
   @Get()
-  findAll(@Query() updateProjectDto: UpdateTaskDto, @Query() paginationDto: PaginationDto) {
-    return this.tasksService.findAll(updateProjectDto, paginationDto);
+  findAll(@Query() updateTaskDto: UpdateTaskDto, @Query() paginationDto: PaginationDto) {
+    return this.tasksService.findAll(updateTaskDto, paginationDto);
   }
 
   @Get(':id')
